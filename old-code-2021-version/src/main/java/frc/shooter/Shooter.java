@@ -126,7 +126,7 @@ public class Shooter{
             actualRPM = leader.getEncoder().getVelocity();
         }
         else{
-            actualRPM = falconLeader.getSelectedSensorVelocity(); //do math: 4096 units/rotation, units/100ms
+            actualRPM = falconLeader.getSelectedSensorVelocity()*(60/40960); //do math: 4096 units/rotation, units/100ms
         }
         checkState();
         //speed = shooterSpeed.getDouble(0);
@@ -289,6 +289,10 @@ public class Shooter{
         SmartDashboard.putBoolean("shooter enable", enabled);
     }
 
+    private double convertRPMtoFalconUnits(double rpm){
+        return rpm*(40960/60);
+    }
+
     public void spinUp(){
         setSpeed(speed);
     }
@@ -312,6 +316,9 @@ public class Shooter{
     }
 
     public boolean atSpeed(){
+        if(useFalcons){
+            return falconLeader.getSelectedSensorVelocity()>speed-80;
+        }
         return leader.getEncoder().getVelocity()>speed-80;
     }
 
@@ -373,22 +380,25 @@ public class Shooter{
         // shooterP.getDouble(0);
         // shooterI.getDouble(0);
         // shooterD.getDouble(0);
+        if(!useFalcons){
+            leader.setSmartCurrentLimit(80);
+            follower.setSmartCurrentLimit(80);
+            leader.setIdleMode(IdleMode.kCoast);
+            follower.setIdleMode(IdleMode.kCoast);
 
-        leader.setSmartCurrentLimit(80);
-        follower.setSmartCurrentLimit(80);
-        leader.setIdleMode(IdleMode.kCoast);
-        follower.setIdleMode(IdleMode.kCoast);
+            leader.getEncoder().setPosition(0);
+            leader.setOpenLoopRampRate(40);
+        }
 
-        leader.getEncoder().setPosition(0);
-        leader.setOpenLoopRampRate(40);
-        
         ballsShot = 0;
 
         //leader.setInverted(false);
         // follower.setInverted(true);
 
-        speedo = leader.getPIDController();
-        encoder = leader.getEncoder();
+        if(!useFalcons){
+            speedo = leader.getPIDController();
+            encoder = leader.getEncoder();
+        }
         //setPID(4e-5, 0, 0);
         speedo.setOutputRange(-1, 1);
         //setPID(1,0,0);
