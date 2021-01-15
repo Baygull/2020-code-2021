@@ -34,7 +34,7 @@ public class Robot extends TimedRobot {
   Turret turret;
   Hopper hopper;
   Intake intake;
-  BallHandler baller;
+  //BallHandler baller;
   int autoStage;
   private static final String defaultAuto = "Default";
   private static final String auto1 = "Auto 1";
@@ -90,9 +90,9 @@ public class Robot extends TimedRobot {
     // hopper = new Hopper();
     // hopper.init();
 
-    baller = new BallHandler();
-    baller.init();
-    baller.intake.setDeploy(false);
+    // baller = new BallHandler();
+    // baller.init();
+    // baller.intake.setDeploy(false);
   }
 
   /**
@@ -110,8 +110,13 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     driver.setCurrentLimits(80);
-    baller.shooter.interpolationEnabled = false;
-    baller.intake.setDeploy(false);
+
+    // baller.shooter.interpolationEnabled = false;
+    // baller.intake.setDeploy(false);
+
+    //UNCOMMENT TO MAKE STUFF WORK ^
+
+
     //driver.resetAuton();
     //driver.initPathfinderAuto();
     //shooter.initLogger();
@@ -139,9 +144,9 @@ public class Robot extends TimedRobot {
       turret.resetPigeon();
       turret.setBrake(true);
       turret.track = false;
-      baller.hopper.indexSensor.setAutomaticMode(true);
-      baller.hopper.indexSensor.setRangeProfile(RangeProfile.kHighSpeed);
-      baller.hopper.indexSensor.setEnabled(true);
+              // baller.hopper.indexSensor.setAutomaticMode(true);
+              // baller.hopper.indexSensor.setRangeProfile(RangeProfile.kHighSpeed);
+              // baller.hopper.indexSensor.setEnabled(true);
       turret.chasingTarget = false;
       setupDone = true;
     }
@@ -150,11 +155,11 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopInit() {
     driver.setCurrentLimits(50);
-    baller.intake.setDeploy(true);
-    baller.hopper.indexSensor.setAutomaticMode(true);
-    baller.hopper.indexSensor.setRangeProfile(RangeProfile.kHighSpeed);
-    baller.hopper.indexSensor.setEnabled(true);
-    baller.shooter.interpolationEnabled = true;
+            // baller.intake.setDeploy(true);
+            // baller.hopper.indexSensor.setAutomaticMode(true);
+            // baller.hopper.indexSensor.setRangeProfile(RangeProfile.kHighSpeed);
+            // baller.hopper.indexSensor.setEnabled(true);
+            // baller.shooter.interpolationEnabled = true;
     //setStuffUp();
     //testInit();
     // shooter.initLogger();
@@ -170,12 +175,12 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void teleopPeriodic() {
-    baller.shooter.interpolationEnabled = true;
+          // baller.shooter.interpolationEnabled = true;
     driver.updateTeleop(); //USE FOR PRACTICE
-    baller.update(); //USE
+          // baller.update(); //USE
     climber.update();
     //turret.setDriveOmega(driver.omega());
-    turret.track = !baller.indexing;
+    //  turret.track = !baller.indexing;
     turret.update();
     SmartDashboard.putNumber("drive omega", driver.omega());
   }
@@ -192,9 +197,9 @@ public class Robot extends TimedRobot {
     turret.resetPigeon();
     turret.setBrake(true);
     turret.track = false;
-    baller.hopper.indexSensor.setAutomaticMode(true);
-    baller.hopper.indexSensor.setRangeProfile(RangeProfile.kHighSpeed);
-    baller.hopper.indexSensor.setEnabled(true);
+    // baller.hopper.indexSensor.setAutomaticMode(true);
+    // baller.hopper.indexSensor.setRangeProfile(RangeProfile.kHighSpeed);
+    // baller.hopper.indexSensor.setEnabled(true);
   }
   
   /**
@@ -203,12 +208,12 @@ public class Robot extends TimedRobot {
   @Override
   public void testPeriodic() {
     //driver.updateTest(); //USE FOR POINT GATHERING
-    //driver.updateTeleop(); //USE FOR PRACTICE
-    baller.update(); //USE
-    climber.update();
+    driver.updateTeleop(); //USE FOR PRACTICE
+    // baller.update(); //USE
+    //climber.update();
     //turret.setDriveOmega(driver.omega());
-    turret.track = !baller.shooting;
-    turret.update();
+    // turret.track = !baller.shooting;
+    //turret.update();
     SmartDashboard.putNumber("drive omega", driver.omega());
   }
 
@@ -219,15 +224,15 @@ public class Robot extends TimedRobot {
     setupDone = false;
     turret.setBrake(false);
     driver.unlockWheels();
-    baller.hopper.indexSensor.setEnabled(false);
+    // baller.hopper.indexSensor.setEnabled(false);
     //baller.closeLoggers();
     pdp.closeLogger();
     driver.closeLogger();
-    baller.stopFiring();
+    // baller.stopFiring();
     climber.buddyLock.set(false);
     driver.setLowGear(false);
-    baller.intake.setDeploy(false);
-    baller.intake.closeUnusedSolenoids();
+    // baller.intake.setDeploy(false);
+    // baller.intake.closeUnusedSolenoids();
   }
 
   public void updateAuto(double[][] auto){
@@ -244,7 +249,7 @@ public class Robot extends TimedRobot {
     else{
       if(performSpecialAction(auto[autoStage][3])){autoStage++;}
     }
-    baller.updateMechanisms();
+    // baller.updateMechanisms();
   }
 
   public boolean performSpecialAction(double actionToPerform){
@@ -254,7 +259,7 @@ public class Robot extends TimedRobot {
       case(0): 
         complete = specialAction0();
         break;
-      case(1): //action 1 is to aim the turret to 135
+      /*case(1): //action 1 is to aim the turret to 135
         complete = specialActionAimTurret(110);
         break;
       case(2): //action 2 is to shoot all the balls in the hopper
@@ -286,7 +291,7 @@ public class Robot extends TimedRobot {
         break;
       case(11): //rotate to x
         complete = specialActionAimTurret(235);
-        break;
+        break;*/
     }
     return complete;
   }
@@ -317,7 +322,7 @@ public class Robot extends TimedRobot {
     return true;
   }
 
-  private boolean specialActionSpinUpShooter(){
+  /*private boolean specialActionSpinUpShooter(){
     baller.shooter.toggle(true);
     baller.updateMechanisms();
     return true;
@@ -354,5 +359,5 @@ public class Robot extends TimedRobot {
   private boolean specialActionRetractIntake(){
     baller.intake.setDeploy(false);
     return true;
-  }
+  }*/
 }

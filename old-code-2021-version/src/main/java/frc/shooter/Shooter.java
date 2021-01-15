@@ -97,13 +97,13 @@ public class Shooter{
 
     public Shooter(){
         if(!useFalcons){
-        leader = new CANSparkMax(RobotMap.shooterLeader, MotorType.kBrushless);
-        follower = new CANSparkMax(RobotMap.shooterFollower, MotorType.kBrushless);
-        if(RobotToggles.shooterPID){
-            speedo = leader.getPIDController();
-        }
-        leader.setInverted(true);
-        follower.follow(leader, true);
+            leader = new CANSparkMax(RobotMap.shooterLeader, MotorType.kBrushless);
+            follower = new CANSparkMax(RobotMap.shooterFollower, MotorType.kBrushless);
+            if(RobotToggles.shooterPID){
+                speedo = leader.getPIDController();
+            }
+            leader.setInverted(true);
+            follower.follow(leader, true);
         }
         else{
             falconLeader = new TalonFX(RobotMap.shooterLeader);
@@ -168,7 +168,7 @@ public class Shooter{
         //     speed = lastSpeed;
         // }
         if(!panel.getButton(13)){
-            speed = 4200*((joy.getSlider()*0.25)+1); //4200
+            speed = interpolateSpeed(); //4200*((joy.getSlider()*0.25)+1); //4200
             disabled = false;
         }
         else{
@@ -176,9 +176,9 @@ public class Shooter{
             disabled = true;
         }
 
-        if(!interpolationEnabled){
-            speed = 4200;
-        }
+        // if(!interpolationEnabled){
+        //     speed = 4200;
+        // }
 
 
 
@@ -361,7 +361,12 @@ public class Shooter{
      */
     public void setSpeed(double rpm){
         //System.out.println("setSpeed1");
-        speedo.setReference(rpm, ControlType.kVelocity);
+        if(!useFalcons){
+            speedo.setReference(rpm, ControlType.kVelocity);
+        }
+        else{
+            falconLeader.set(ControlMode.Velocity, convertRPMtoFalconUnits(rpm));
+        }
         //System.out.println("setSpeed2");
     }
 
@@ -389,6 +394,10 @@ public class Shooter{
             leader.getEncoder().setPosition(0);
             leader.setOpenLoopRampRate(40);
         }
+        else{
+            //ADD -------------------------------------------------------------------------------------------------------
+            
+        }
 
         ballsShot = 0;
 
@@ -398,15 +407,19 @@ public class Shooter{
         if(!useFalcons){
             speedo = leader.getPIDController();
             encoder = leader.getEncoder();
-        }
-        //setPID(4e-5, 0, 0);
-        speedo.setOutputRange(-1, 1);
-        //setPID(1,0,0);
+            //setPID(4e-5, 0, 0);
+            speedo.setOutputRange(-1, 1);
+            //setPID(1,0,0);
 
-        speedo.setOutputRange(-1, 1);
+            speedo.setOutputRange(-1, 1);
+        }
+        else{
+            //ADD -------------------------------------------------------------------------------------------------------
+        }
+        
 
         chameleon.init();
-        SmartDashboard.putString("ZONE", "none");
+        //SmartDashboard.putString("ZONE", "none");
         joy = new JoystickController(1);
         panel = new ButtonPanel(2);
     }
@@ -418,10 +431,18 @@ public class Shooter{
      * @param D - D value
      */
     private void setPID(double P, double I, double D, double F){
-        speedo.setP(P);
-        speedo.setI(I);
-        speedo.setD(D);
-        speedo.setFF(F);
+        if(!useFalcons){
+            speedo.setP(P);
+            speedo.setI(I);
+            speedo.setD(D);
+            speedo.setFF(F);
+        }
+        else{
+            falconLeader.config_kP(1, P);
+            falconLeader.config_kI(1, I);
+            falconLeader.config_kD(1, D);
+            falconLeader.config_kF(1, F);
+        }
     }
 
     /**
@@ -446,20 +467,20 @@ public class Shooter{
      * Write shooter data to the log file.
      */
     private void writeData(){
-        double powered;
-        if(enabled){powered = 1;}else{powered = 0;}
-        double[] data = {
-            Timer.getMatchTime(), 
-            timer.get(), 
-            leader.getEncoder().getVelocity(), 
-            speed, leader.getMotorTemperature(), 
-            leader.getOutputCurrent(), 
-            powered, 
-            P, I, D, 
-            recoveryP, recoveryI, recoveryD,
-            chameleon.getGoalDistance()
-        };
-        logger.writeData(data);
+        // double powered;
+        // if(enabled){powered = 1;}else{powered = 0;}
+        // double[] data = {
+        //     Timer.getMatchTime(), 
+        //     timer.get(), 
+        //     leader.getEncoder().getVelocity(), 
+        //     speed, leader.getMotorTemperature(), 
+        //     leader.getOutputCurrent(), 
+        //     powered, 
+        //     P, I, D, 
+        //     recoveryP, recoveryI, recoveryD,
+        //     chameleon.getGoalDistance()
+        // };
+        // logger.writeData(data);
     }
 
     private double[][] sizeSpeedsArray = {
@@ -474,7 +495,7 @@ public class Shooter{
     private double speedMult = 1;
     private double interpolateSpeed(){
         double size = chameleon.getGoalSize();
-        double finalMult = (joy.getSlider()*0.25)+1;
+        double finalMult = 1;//(joy.getSlider()*0.25)+1;
         int index = 0;
         for(int i = 0; i<sizeSpeedsArray.length ; i++){
             if(size>sizeSpeedsArray[i][0]){
